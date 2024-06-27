@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'services/api_service.dart';
 import 'package:location/location.dart';
@@ -25,6 +24,7 @@ class MyApp extends StatelessWidget {
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
+
   @override
   // ignore: library_private_types_in_public_api
   _HomeScreenState createState() => _HomeScreenState();
@@ -45,33 +45,20 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _getCurrentLocation() async {
-    bool serviceEnabled;
-    PermissionStatus permissionGranted;
 
-    // Check if location services are enabled
-    serviceEnabled = await location.serviceEnabled();
-    if (!serviceEnabled) {
-      serviceEnabled = await location.requestService();
-      if (!serviceEnabled) {
-        return;
-      }
-    }
+  _currentLocation = await location.getLocation();
+  print("Current Location: ${_currentLocation.latitude}, ${_currentLocation.longitude}");
 
-    // Check if location permissions are granted
-    permissionGranted = await location.hasPermission();
-    if (permissionGranted == PermissionStatus.denied) {
-      permissionGranted = await location.requestPermission();
-      if (permissionGranted != PermissionStatus.granted) {
-        return;
-      }
-    }
-
-    // Get the current location
-    _currentLocation = await location.getLocation();
-    if (kDebugMode) {
-      print("Current Location: ${_currentLocation.latitude}, ${_currentLocation.longitude}");
-    }
+  try {
+    await apiService.sendCurrentLocation(
+      _currentLocation.latitude!,
+      _currentLocation.longitude!,
+    );
+    print("Location is sent to backend successfully: ${_currentLocation.latitude}, ${_currentLocation.longitude}");
+  } catch (e) {
+    print("Failed to send location to backend: $e");
   }
+}
 
   @override
   Widget build(BuildContext context) {
@@ -119,7 +106,6 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 }
-
 class PlaceDetailsScreen extends StatelessWidget {
   final String geoapifyId;
 

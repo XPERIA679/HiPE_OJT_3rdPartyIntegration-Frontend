@@ -35,7 +35,7 @@ class ApiService {
 
   Future<void> sendCurrentLocation(double latitude, double longitude) async {
     final response = await http.post(
-      Uri.parse('$baseUrl/update-location'),
+      Uri.parse('$baseUrl/current-location'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
       },
