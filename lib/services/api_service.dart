@@ -8,9 +8,9 @@ class ApiService {
     final response = await http.get(Uri.parse('$baseUrl/places'));
     if (response.statusCode == 200) {
       return jsonDecode(response.body);
-    } else {
-      throw Exception('Failed to load places');
     }
+    print('Failed to load places. Status code: ${response.statusCode}');
+    throw Exception('Failed to load places: ${response.reasonPhrase}');
   }
 
   Future<Map<String, dynamic>> getSingleCurrentDetails(
@@ -18,9 +18,9 @@ class ApiService {
     final response = await http.get(Uri.parse('$baseUrl/place/$geoapifyId'));
     if (response.statusCode == 200) {
       return jsonDecode(response.body);
-    } else {
-      throw Exception('Failed to load place details');
     }
+    print('Failed to load place details. Status code: ${response.statusCode}');
+    throw Exception('Failed to load place details: ${response.reasonPhrase}');
   }
 
   Future<Map<String, dynamic>> getSingleFullDetails(String geoapifyId) async {
@@ -28,8 +28,10 @@ class ApiService {
         await http.get(Uri.parse('$baseUrl/place/$geoapifyId/details'));
     if (response.statusCode == 200) {
       return jsonDecode(response.body);
-    } else {
-      throw Exception('Failed to load full place details');
     }
+    print(
+        'Failed to load full place details. Status code: ${response.statusCode}');
+    throw Exception(
+        'Failed to load full place details: ${response.reasonPhrase}');
   }
 }
