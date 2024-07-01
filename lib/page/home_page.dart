@@ -55,41 +55,41 @@ class _HomeScreenState extends State<HomeScreen> {
                 color: Colors.white,
               ),
             );
-          } else if (snapshot.hasError) {
+          }
+          if (snapshot.hasError) {
             return Center(
               child: Text(
                 'Error: ${snapshot.error}',
                 style: const TextStyle(color: Colors.white),
               ),
             );
-          } else {
-            return GridView.builder(
-              padding: const EdgeInsets.all(8.0),
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                childAspectRatio: 0.53,
-                crossAxisSpacing: 10.0,
-                mainAxisSpacing: 10.0,
-              ),
-              itemCount: snapshot.data!.length,
-              itemBuilder: (context, index) {
-                final place = snapshot.data![index];
-                return GestureDetector(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => PlaceDetailsScreen(
-                          geoapifyId: place['geoapifyId'],
-                        ),
-                      ),
-                    );
-                  },
-                  child: _buildWeatherCard(place),
-                );
-              },
-            );
           }
+          return GridView.builder(
+            padding: const EdgeInsets.all(8.0),
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2,
+              childAspectRatio: 0.53,
+              crossAxisSpacing: 10.0,
+              mainAxisSpacing: 10.0,
+            ),
+            itemCount: snapshot.data!.length,
+            itemBuilder: (context, index) {
+              final place = snapshot.data![index];
+              return GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => PlaceDetailsScreen(
+                        geoapifyId: place['geoapifyId'],
+                      ),
+                    ),
+                  );
+                },
+                child: _buildWeatherCard(place),
+              );
+            },
+          );
         },
       ),
     );
@@ -98,39 +98,29 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _buildWeatherCard(Map<String, dynamic> place) {
     String imagePath = 'assets/images/default.jpg';
 
-    switch (place['name']) {
-      case 'Calapan':
-        imagePath = 'assets/images/calapan.webp';
-        break;
-      case 'Looc':
-        imagePath = 'assets/images/looc.jpg';
-        break;
-      case 'Paluan':
-        imagePath = 'assets/images/paluan.jpg';
-        break;
-      case 'Santa Cruz':
-        imagePath = 'assets/images/sta.cruz.jpg';
-        break;
-      case 'Mamburao':
-        imagePath = 'assets/images/mamburao.jpg';
-        break;
-      case 'Calintaan':
-        imagePath = 'assets/images/calintaan.jpg';
-        break;
-      case 'Puerto Galera':
-        imagePath = 'assets/images/puertogalera.jpg';
-        break;
-      case 'Tingloy':
-        imagePath = 'assets/images/tingloy.jpg';
-        break;
-      case 'Sablayan':
-        imagePath = 'assets/images/sablayan.jpg';
-        break;
-      case 'Abra de Ilog':
-        imagePath = 'assets/images/abra.jpg';
-        break;
-      default:
-        imagePath = 'assets/images/default.jpg';
+    String weatherDescription =
+        place['weather'][0]['description'].toLowerCase();
+    if (weatherDescription.contains('rain') ||
+        weatherDescription.contains('shower')) {
+      imagePath = 'assets/images/lightrain.jpg';
+    }
+    if (weatherDescription.contains('overcast')) {
+      imagePath = 'assets/images/overcast.jpg';
+    }
+    if (weatherDescription.contains('scattered')) {
+      imagePath = 'assets/images/scattered.webp';
+    }
+    if (weatherDescription.contains('broken')) {
+      imagePath = 'assets/images/brokenclouds.jpg';
+    }
+    if (weatherDescription.contains('few')) {
+      imagePath = 'assets/images/fewclouds.jpg';
+    }
+    if (weatherDescription.contains('clear')) {
+      imagePath = 'assets/images/sunny.jpg';
+    }
+    if (weatherDescription.contains('snow')) {
+      imagePath = 'assets/images/snow.jpg';
     }
 
     return Card(
@@ -165,14 +155,29 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _locationHeader(Map<String, dynamic> place) {
-    return Text(
-      place['name'],
-      style: const TextStyle(
-        fontSize: 18,
-        fontWeight: FontWeight.bold,
-        color: Colors.white,
-      ),
-      textAlign: TextAlign.center,
+    String weatherDescription = place['weather'][0]['description'];
+
+    return Column(
+      children: [
+        Text(
+          place['name'],
+          style: const TextStyle(
+            fontSize: 25,
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
+          textAlign: TextAlign.center,
+        ),
+        Text(
+          weatherDescription,
+          style: const TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.w400,
+            color: Colors.white,
+          ),
+          textAlign: TextAlign.center,
+        ),
+      ],
     );
   }
 
@@ -180,7 +185,7 @@ class _HomeScreenState extends State<HomeScreen> {
     return Text(
       '${place['main']['temp']} °C',
       style: const TextStyle(
-        fontSize: 16,
+        fontSize: 20,
         fontWeight: FontWeight.w500,
         color: Colors.white,
       ),
@@ -192,7 +197,7 @@ class _HomeScreenState extends State<HomeScreen> {
     return Text(
       place['weather'][0]['description'],
       style: const TextStyle(
-        fontSize: 14,
+        fontSize: 20,
         fontWeight: FontWeight.w400,
         color: Colors.white,
       ),
@@ -230,53 +235,45 @@ class PlaceDetailsScreen extends StatelessWidget {
                 color: Colors.white,
               ),
             );
-          } else if (snapshot.hasError) {
+          }
+          if (snapshot.hasError) {
             return Center(
               child: Text(
                 'Error: ${snapshot.error}',
                 style: const TextStyle(color: Colors.white),
               ),
             );
-          } else if (snapshot.hasData) {
+          }
+          if (snapshot.hasData) {
             final place = snapshot.data!['current'];
             final forecast = snapshot.data!['forecast']['list'];
             final DateTime now = DateTime.now();
 
             String backgroundImage = 'assets/images/default.jpg';
 
-            switch (place['name']) {
-              case 'Calapan':
-                backgroundImage = 'assets/images/calapan.webp';
-                break;
-              case 'Looc':
-                backgroundImage = 'assets/images/looc.jpg';
-                break;
-              case 'Paluan':
-                backgroundImage = 'assets/images/paluan.jpg';
-                break;
-              case 'Santa Cruz':
-                backgroundImage = 'assets/images/sta.cruz.jpg';
-                break;
-              case 'Mamburao':
-                backgroundImage = 'assets/images/mamburao.jpg';
-                break;
-              case 'Calintaan':
-                backgroundImage = 'assets/images/calintaan.jpg';
-                break;
-              case 'Puerto Galera':
-                backgroundImage = 'assets/images/puertogalera.jpg';
-                break;
-              case 'Tingloy':
-                backgroundImage = 'assets/images/tingloy.jpg';
-                break;
-              case 'Sablayan':
-                backgroundImage = 'assets/images/sablayan.jpg';
-                break;
-              case 'Abra de Ilog':
-                backgroundImage = 'assets/images/abra.jpg';
-                break;
-              default:
-                backgroundImage = 'assets/images/default.jpg';
+            String weatherDescription =
+                place['weather'][0]['description'].toLowerCase();
+            if (weatherDescription.contains('rain') ||
+                weatherDescription.contains('shower')) {
+              backgroundImage = 'assets/images/lightrain.jpg';
+            }
+            if (weatherDescription.contains('overcast')) {
+              backgroundImage = 'assets/images/overcast.jpg';
+            }
+            if (weatherDescription.contains('scattered')) {
+              backgroundImage = 'assets/images/scattered.webp';
+            }
+            if (weatherDescription.contains('broken')) {
+              backgroundImage = 'assets/images/brokenclouds.jpg';
+            }
+            if (weatherDescription.contains('few')) {
+              backgroundImage = 'assets/images/fewclouds.jpg';
+            }
+            if (weatherDescription.contains('clear')) {
+              backgroundImage = 'assets/images/sunny.jpg';
+            }
+            if (weatherDescription.contains('snow')) {
+              backgroundImage = 'assets/images/snow.jpg';
             }
 
             return Container(
@@ -347,12 +344,12 @@ class PlaceDetailsScreen extends StatelessWidget {
                     ),
                     const Divider(color: Colors.white),
                     Container(
-                      margin: const EdgeInsets.symmetric(horizontal: 10.0),
+                      margin: const EdgeInsets.symmetric(horizontal: 0.05),
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(10.0),
                         color: Colors.grey[800],
                       ),
-                      padding: const EdgeInsets.all(10.0),
+                      padding: const EdgeInsets.all(0.05),
                       height: 120,
                       child: SingleChildScrollView(
                         scrollDirection: Axis.horizontal,
@@ -361,7 +358,7 @@ class PlaceDetailsScreen extends StatelessWidget {
                             Container(
                               width: 100,
                               margin:
-                                  const EdgeInsets.symmetric(horizontal: 5.0),
+                                  const EdgeInsets.symmetric(horizontal: 0.05),
                               child: Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
@@ -375,8 +372,8 @@ class PlaceDetailsScreen extends StatelessWidget {
                                   const SizedBox(height: 5),
                                   Image.network(
                                     'http://openweathermap.org/img/w/${place['weather'][0]['icon']}.png',
-                                    width: 50,
-                                    height: 50,
+                                    width: 40,
+                                    height: 40,
                                   ),
                                   Text(
                                     '${place['main']['temp']} °C',
@@ -385,41 +382,42 @@ class PlaceDetailsScreen extends StatelessWidget {
                                 ],
                               ),
                             ),
-                            ...forecast.map<Widget>((item) {
+                            ...List.generate(4, (index) {
                               final forecastDateTime =
-                                  DateTime.parse(item['dt_txt']);
-                              if (forecastDateTime.isAfter(now)) {
-                                return Container(
-                                  width: 100,
-                                  margin: const EdgeInsets.symmetric(
-                                      horizontal: 5.0),
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Text(
-                                        DateFormat('h a')
-                                            .format(forecastDateTime),
-                                        style: const TextStyle(
-                                            color: Colors.white),
-                                      ),
-                                      const SizedBox(height: 5),
-                                      Image.network(
-                                        'http://openweathermap.org/img/w/${item['weather'][0]['icon']}.png',
-                                        width: 50,
-                                        height: 50,
-                                      ),
-                                      Text(
-                                        '${item['main']['temp']} °C',
-                                        style: const TextStyle(
-                                            color: Colors.white),
-                                      ),
-                                    ],
-                                  ),
-                                );
-                              } else {
-                                return const SizedBox.shrink();
-                              }
-                            }).toList(),
+                                  now.add(Duration(hours: (index + 1) * 3));
+                              final forecastItem = forecast.firstWhere(
+                                  (item) =>
+                                      DateTime.parse(item['dt_txt']).hour ==
+                                      forecastDateTime.hour,
+                                  orElse: () => forecast.first);
+                              return Container(
+                                width: 75,
+                                margin: const EdgeInsets.symmetric(
+                                    horizontal: 0.05),
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Text(
+                                      DateFormat('h a')
+                                          .format(forecastDateTime),
+                                      style:
+                                          const TextStyle(color: Colors.white),
+                                    ),
+                                    const SizedBox(height: 5),
+                                    Image.network(
+                                      'http://openweathermap.org/img/w/${forecastItem['weather'][0]['icon']}.png',
+                                      width: 30,
+                                      height: 30,
+                                    ),
+                                    Text(
+                                      '${forecastItem['main']['temp']} °C',
+                                      style:
+                                          const TextStyle(color: Colors.white),
+                                    ),
+                                  ],
+                                ),
+                              );
+                            }),
                           ],
                         ),
                       ),
@@ -497,14 +495,13 @@ class PlaceDetailsScreen extends StatelessWidget {
                 ),
               ),
             );
-          } else {
-            return const Center(
-              child: Text(
-                'No data available',
-                style: TextStyle(color: Colors.white),
-              ),
-            );
           }
+          return const Center(
+            child: Text(
+              'No data available',
+              style: TextStyle(color: Colors.white),
+            ),
+          );
         },
       ),
     );
